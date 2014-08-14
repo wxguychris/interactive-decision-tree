@@ -1,0 +1,8 @@
+AuthType WRAP
+require known-user
+
+<Files "editTree.php">
+  require user cmwebste cblevow
+</Files>
+
+DirectoryIndex showTree.html
