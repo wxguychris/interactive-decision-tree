@@ -54,8 +54,8 @@ input[type="text"]{
 	width: 19em;
 }
 textarea{
-	width: 20em;
-	height: 5em;
+	width: 50em;
+	height: 20em;
 	font-family: Geneva, Arial, Helvetica, sans-serif;
 	font-size: 0.8em;
 }
