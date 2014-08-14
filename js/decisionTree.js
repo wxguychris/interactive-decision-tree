@@ -1,7 +1,10 @@
 var treeData;
 $(document).ready( function(){
-	
-	windowWidth = $('#tree-window').outerWidth( false );
+
+    // used to ensure the container which holds all of the sliding elements is the correct width
+    // prevents the last slide from being crammed to the right, disrupting the elements if you go back from a final node
+    slideDifferential = 30;
+	windowWidth = $('#tree-window').outerWidth( false ) - slideDifferential; //adjusted to work with Bootstrap CSS
 	sliderWidth = 0;
 	slideTime = 300;
 	branches = new Array();
@@ -35,7 +38,11 @@ function loadData( id ){
 		dataType: "xml", 
 		success: function( xml ){
 			buildNodes( xml );
-		}
+		},
+        error: function(){
+//            alert('Specified decision tree not found!');
+            $('#reload-indicator').removeClass('hidden');
+        }
 	});
 }
 
@@ -71,9 +78,21 @@ function buildNodes( xmlData ){
 			}
 	});
 	sliderWidth = windowWidth * maxDepth;
-	$('#tree-slider').width( sliderWidth );
-	var resetText = $(xmlData).find('resetText').text();
-	$('#tree-reset').html( resetText );
+	$('#tree-slider').width( sliderWidth + slideDifferential );
+    // reset button handling
+    var resetText = $(xmlData).find('resetText').text();
+    if(resetText.length > 0){
+        var resetIcon = document.createElement('span');
+        $(resetIcon).html('&nbsp;').addClass('glyphicon glyphicon-refresh');
+        $('#tree-reset').html(resetText).prepend(resetIcon);
+    } else {
+        $('#tree-reset').addClass('hidden');
+    }
+
+    // page title handling
+    var pageTitle = $(xmlData).find('title').text();
+    $('#page-title').text(pageTitle);
+    $('head title').text(pageTitle);
 	showBranch( 1 );
 }
 
@@ -108,12 +127,12 @@ function showBranch( id ){
 		if( forkContent.indexOf('http://') == 0 || forkContent.indexOf('https://') == 0 ){
 			link = 'href="' + forkContent + '"'
 		}
-		decisionLinksHTML += '<a ' + link + ' id="' + currentBranch.forkIDs[d] + '">' + currentBranch.forkLabels[d] + '</a>';
+		decisionLinksHTML += '<a ' + link + ' id="' + currentBranch.forkIDs[d] + '" class="btn btn-primary">' + currentBranch.forkLabels[d] + '</a><br/><br/>';
 	}
 	decisionLinksHTML += '</div>';
-	var branchHTML = '<div id="branch-' + currentBranch.id + '" class="tree-content-box"><div class="content">' + currentBranch.content + '</div>' + decisionLinksHTML;
+	var branchHTML = '<div id="branch-' + currentBranch.id + '" class="tree-content-box"><div class="content lead">' + currentBranch.content + '</div>' + decisionLinksHTML;
 	if( currentBranch.id != 1 ){
-		branchHTML += '<a class="back-link">&laquo; Back</a>';
+		branchHTML += '<a class="back-link btn btn-danger">&laquo; Back</a>';
 	}
 	branchHTML += '</div>';
 	$('#tree-slider').append( branchHTML );
